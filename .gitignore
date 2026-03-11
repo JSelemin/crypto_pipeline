@@ -1,0 +1,12 @@
+# Data files
+data/
+*.duckdb
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+
+#Misc
+crypto_pipeline_spec.pdf

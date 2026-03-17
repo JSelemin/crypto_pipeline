@@ -39,35 +39,29 @@ print(r_ping.json())
 # Test single coin price
 r_id = requests.get(BASE_URL + COIN_PRICE_BY_ID + KEY_HANDLER, params=payload_test)
 print(r_id.json())
-print("End of API connection test")
+print("...End of API connection test")
 
 
-def fetch_coin_chart(COIN):
+def fetch_coin_charts(COINS):
 
-    HISTORICAL_CHART_DATA = f"/coins/{COIN}/market_chart/range"
+    for token in COINS:
+        HISTORICAL_CHART_DATA = f"/coins/{token}/market_chart/range"
 
-    # Get prices for one coin
-    r_chart = requests.get(BASE_URL + HISTORICAL_CHART_DATA + KEY_HANDLER, params=payload)
+        # Get prices for one coin
+        r_chart = requests.get(BASE_URL + HISTORICAL_CHART_DATA + KEY_HANDLER, params=payload)
 
-    # Transform into a df and basic transformations
-    df = pd.DataFrame(r_chart.json())
+        # Transform into a df and basic transformations
+        df = pd.DataFrame(r_chart.json())
 
-    df["date"] = df["prices"].apply(lambda x: x[0])
-    df["price"] = df["prices"].apply(lambda x: x[1])
-    df["market_cap"] = df["market_caps"].apply(lambda x: x[1])
-    df["total_volume"] = df["total_volumes"].apply(lambda x: x[1])
+        df["date"] = df["prices"].apply(lambda x: x[0])
+        df[f"{token}_price"] = df["prices"].apply(lambda x: x[1])
+        df[f"{token}_market_cap"] = df["market_caps"].apply(lambda x: x[1])
+        df[f"{token}_total_volume"] = df["total_volumes"].apply(lambda x: x[1])
 
-    df = df.drop(["prices", "market_caps", "total_volumes"], axis=1)
-    df["date"] = df["date"].apply(lambda x: datetime.fromtimestamp(x / 1000))
-    print(df.head())
+        df = df.drop(["prices", "market_caps", "total_volumes"], axis=1)
+        df["date"] = df["date"].apply(lambda x: datetime.fromtimestamp(x / 1000))
+        print(df.head())
 
-    # Save to parquet file
-    df.to_parquet(f'data/{COIN}_chart.parquet')
-
-
-
-coins_to_fetch = ["bitcoin", "ethereum", "solana", "tron", "dogecoin"]
-
-for token in coins_to_fetch:
-    fetch_coin_chart(token)
-    print(f"Token {token} captured correctly.")
+        # Save to parquet file
+        df.to_parquet(f'data/{token}_chart.parquet')
+        print(f"Token {token} captured correctly.")

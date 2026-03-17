@@ -17,32 +17,32 @@ COIN_PRICE_BY_ID = "/simple/price"
 
 KEY_HANDLER = f"?x_cg_demo_api_key={API_KEY}"
 
-# Params
-payload_test = {"vs_currencies": "ars",
-            "ids": "ethereum"}
-
-date = datetime.now()
-month_before = date + timedelta(weeks=-16)
-date = date.timestamp()
-month_before = month_before.timestamp()
-
-payload = {"vs_currency": "usd",
-            "from": f"{month_before}",
-            "to": f"{date}",
-            "precision": 2}
-
-# Test ping
-print("Starting API connection test...")
-r_ping = requests.get(BASE_URL + PING + KEY_HANDLER)
-print(r_ping.json())
-
-# Test single coin price
-r_id = requests.get(BASE_URL + COIN_PRICE_BY_ID + KEY_HANDLER, params=payload_test)
-print(r_id.json())
-print("...End of API connection test")
-
 
 def fetch_coin_charts(COINS):
+
+    # Params
+    payload_test = {"vs_currencies": "ars",
+                "ids": "ethereum"}
+
+    date = datetime.now()
+    month_before = date + timedelta(weeks=-16)
+    date = date.timestamp()
+    month_before = month_before.timestamp()
+
+    payload = {"vs_currency": "usd",
+                "from": f"{month_before}",
+                "to": f"{date}",
+                "precision": 2}
+
+    # Test ping
+    print("Starting API connection test...")
+    r_ping = requests.get(BASE_URL + PING + KEY_HANDLER)
+    print(r_ping.json())
+
+    # Test single coin price
+    r_id = requests.get(BASE_URL + COIN_PRICE_BY_ID + KEY_HANDLER, params=payload_test)
+    print(r_id.json())
+    print("...End of API connection test")
 
     for token in COINS:
         HISTORICAL_CHART_DATA = f"/coins/{token}/market_chart/range"

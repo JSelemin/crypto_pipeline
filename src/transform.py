@@ -1,9 +1,7 @@
 import pandas as pd
 import duckdb
 
-print('Now trying to transform...')
-
-def transform_coin_charts(COINS):
+def create_staging_table(COINS):
 
     # Isolate one specific coin and use it as base table
     first_coin = COINS[0]
@@ -26,5 +24,3 @@ def transform_coin_charts(COINS):
     # Once the transformation is done, write it as a staging table
     first_coin_chart.write_parquet('data/staging_table.parquet')
     first_coin_chart.show()
-
-print('...transformed.')

@@ -5,11 +5,9 @@ import pandas as pd
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-# Get keys
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-# Base URL and endpoints
 BASE_URL = "https://api.coingecko.com/api/v3"
 
 PING = "/ping"
@@ -20,17 +18,16 @@ KEY_HANDLER = f"?x_cg_demo_api_key={API_KEY}"
 
 def fetch_coin_charts(COINS):
 
-    # Params
     payload_test = {"vs_currencies": "ars",
                 "ids": "ethereum"}
 
     date = datetime.now()
-    month_before = date + timedelta(weeks=-16)
+    months_before = date + timedelta(weeks=-16)
     date = date.timestamp()
-    month_before = month_before.timestamp()
+    months_before = months_before.timestamp()
 
     payload = {"vs_currency": "usd",
-                "from": f"{month_before}",
+                "from": f"{months_before}",
                 "to": f"{date}",
                 "precision": 2}
 

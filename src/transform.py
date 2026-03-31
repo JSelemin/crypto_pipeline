@@ -24,3 +24,24 @@ def create_staging_table(COINS):
     # Once the transformation is done, write it as a staging table
     first_coin_chart.write_parquet('data/staging_table.parquet')
     first_coin_chart.show()
+
+def create_daily_returns(COINS):
+
+    staging_table = duckdb.read_parquet('data/staging_table.parquet')
+
+    select_cols = []
+    final_table = duckdb.sql("SELECT date FROM staging_table")
+    for token in COINS:
+        temp_table = duckdb.sql(
+            f'WITH tempCTE AS (SELECT date, {token}_price, LAG({token}_price) OVER (ORDER BY date) AS {token}_day_before FROM staging_table) ' \
+            f'SELECT date, {token}_price, (({token}_price - {token}_day_before) / {token}_day_before) * 100 AS {token}_percentage_change FROM tempCTE')
+        
+        token_staging_table = duckdb.sql(f'SELECT date, {token}_price, ROUND({token}_percentage_change, 2) AS {token}_daily_returns FROM temp_table')
+        final_table = duckdb.sql(f'SELECT * FROM final_table LEFT JOIN token_staging_table ON final_table.date = token_staging_table.date')
+        select_cols.extend([f"{token}_price", f"{token}_daily_returns"])
+
+    select_clause = "date, " + ", ".join(select_cols)
+    daily_returns_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
+
+    daily_returns_table.write_parquet('data/analyses/daily_returns.parquet')
+    daily_returns_table.show()

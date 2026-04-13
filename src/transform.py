@@ -138,6 +138,23 @@ def create_top_movers(COINS):
 
     helper_table = duckdb.sql(f"SELECT *, YEARWEEK(date) AS yearwk, CASE {cases} END AS top_mover, CASE {naming_cases} END AS coin_name FROM staging_table")
     helper_second_table = duckdb.sql(f"SELECT MAX(ABS(top_mover)) AS week_mover, yearwk FROM helper_table GROUP BY yearwk")
-    final_table = duckdb.sql(f"SELECT f.yearwk AS year_week, s.week_mover AS max_daily_movement, f.coin_name AS coin, f.date AS date_of_move FROM helper_second_table s LEFT JOIN helper_table f ON s.week_mover = ABS(top_mover) AND s.yearwk = f.yearwk")
-    final_table.show()
-    final_table.write_parquet('data/analyses/top_movers.parquet')
+    top_movers_table = duckdb.sql(f"SELECT f.yearwk AS year_week, s.week_mover AS max_daily_movement, f.coin_name AS coin, f.date AS date_of_move FROM helper_second_table s LEFT JOIN helper_table f ON s.week_mover = ABS(top_mover) AND s.yearwk = f.yearwk")
+    top_movers_table.show()
+    top_movers_table.write_parquet('data/analyses/top_movers.parquet')
+
+def create_coin_correlation(COINS):
+
+    staging_table = duckdb.read_parquet('data/analyses/daily_returns.parquet')
+
+    first_coin = COINS[0]
+
+    select_cols = []
+    final_table = duckdb.sql(f"SELECT * FROM staging_table")
+
+    for token in COINS:
+            select_cols.extend([f"ROUND(CORR({first_coin}_daily_returns, {token}_daily_returns), 2) AS {first_coin}_{token}_correlation"])
+    
+    select_clause = ", ".join(select_cols)
+    coin_correlation_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
+    coin_correlation_table.show()
+    coin_correlation_table.write_parquet('data/analyses/coin_correlation.parquet')

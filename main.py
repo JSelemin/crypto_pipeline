@@ -1,5 +1,5 @@
 from src.extract import fetch_coin_charts
-from src.transform import create_staging_table, create_daily_returns, create_rolling_averages, create_volatility, create_market_dominance, create_top_movers
+from src.transform import create_staging_table, create_daily_returns, create_rolling_averages, create_volatility, create_market_dominance, create_top_movers, create_coin_correlation
 
 coins_to_fetch = ["bitcoin", "ethereum", "solana", "tron", "dogecoin"]
 
@@ -24,6 +24,9 @@ def main():
 
         create_top_movers(coins_to_fetch)
         print('Top movers done.')
+
+        create_coin_correlation(coins_to_fetch)
+        print("Coin correlation done.")
 
 
 

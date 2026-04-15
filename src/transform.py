@@ -16,7 +16,10 @@ def create_staging_table(COINS):
 
         select_clause = "first_coin_chart.date, " + ", ".join(old_cols + new_cols)
 
-        first_coin_chart = duckdb.sql(f'SELECT {select_clause} FROM first_coin_chart FULL JOIN token_chart ON first_coin_chart.date = token_chart.date')
+        first_coin_chart = duckdb.sql(f"""SELECT {select_clause} 
+                                    FROM first_coin_chart 
+                                    FULL JOIN token_chart 
+                                        ON first_coin_chart.date = token_chart.date""")
     
     first_coin_chart.write_parquet('data/staging_table.parquet')
     first_coin_chart.show()
@@ -39,7 +42,7 @@ def create_daily_returns(COINS):
     select_clause = "date, " + ", ".join(select_cols)
     daily_returns_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
 
-    daily_returns_table.write_parquet('data/analyses/daily_returns.parquet')
+    daily_returns_table.write_parquet('data/output/daily_returns.parquet')
     daily_returns_table.show()
 
 def create_rolling_averages(COINS):
@@ -60,12 +63,12 @@ def create_rolling_averages(COINS):
     select_clause = "date, " + ", ".join(select_cols)
     rolling_averages_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
     
-    rolling_averages_table.write_parquet('data/analyses/rolling_averages.parquet')    
+    rolling_averages_table.write_parquet('data/output/rolling_averages.parquet')    
     rolling_averages_table.show()
 
 def create_volatility(COINS):
 
-    staging_table = duckdb.read_parquet('data/analyses/daily_returns.parquet')
+    staging_table = duckdb.read_parquet('data/output/daily_returns.parquet')
 
     select_cols = []
     final_table = duckdb.sql("SELECT date FROM staging_table")
@@ -78,7 +81,7 @@ def create_volatility(COINS):
     select_clause = "date, " + ", ".join(select_cols)
     volatility_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
     
-    volatility_table.write_parquet('data/analyses/volatility.parquet')    
+    volatility_table.write_parquet('data/output/volatility.parquet')    
     volatility_table.show()
 
 def create_market_dominance(COINS):
@@ -105,12 +108,12 @@ def create_market_dominance(COINS):
     select_clause = "date, " + "total_market_cap, " + ", ".join(select_cols)
     market_dominance_table = duckdb.sql(f"SELECT {select_clause} FROM final_table")
     
-    market_dominance_table.write_parquet('data/analyses/market_dominance.parquet')    
+    market_dominance_table.write_parquet('data/output/market_dominance.parquet')    
     market_dominance_table.show()
 
 def create_top_movers(COINS):
 
-    staging_table = duckdb.read_parquet('data/analyses/daily_returns.parquet')
+    staging_table = duckdb.read_parquet('data/output/daily_returns.parquet')
 
     columns_array = []
     absolutes_array = []
@@ -136,11 +139,11 @@ def create_top_movers(COINS):
     helper_second_table = duckdb.sql(f"SELECT MAX(ABS(top_mover)) AS week_mover, yearwk FROM helper_table GROUP BY yearwk")
     top_movers_table = duckdb.sql(f"SELECT f.yearwk AS year_week, s.week_mover AS max_daily_movement, f.coin_name AS coin, f.date AS date_of_move FROM helper_second_table s LEFT JOIN helper_table f ON s.week_mover = ABS(top_mover) AND s.yearwk = f.yearwk")
     top_movers_table.show()
-    top_movers_table.write_parquet('data/analyses/top_movers.parquet')
+    top_movers_table.write_parquet('data/output/top_movers.parquet')
 
 def create_coin_correlation(COINS):
 
-    staging_table = duckdb.read_parquet('data/analyses/daily_returns.parquet')
+    staging_table = duckdb.read_parquet('data/output/daily_returns.parquet')
 
     first_coin = COINS[0]
 
@@ -158,4 +161,4 @@ def create_coin_correlation(COINS):
     select_clause = " UNION ALL ".join(select_cols)
     coin_correlation_table = duckdb.sql(select_clause)
     coin_correlation_table.show()
-    coin_correlation_table.write_parquet('data/analyses/coin_correlation.parquet')
+    coin_correlation_table.write_parquet('data/output/coin_correlation.parquet')

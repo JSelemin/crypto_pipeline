@@ -22,7 +22,7 @@ def fetch_coin_charts(COINS):
                 "ids": "ethereum"}
 
     date = datetime.now()
-    months_before = date + timedelta(weeks=-16)
+    months_before = date + timedelta(weeks=-52)
     date = date.timestamp()
     months_before = months_before.timestamp()
 

@@ -1,7 +1,5 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/JSelemin/crypto_pipeline/blob/main/README.en.md)
 
-[![es](https://img.shields.io/badge/lang-es-yellow.svg)](https://github.com/JSelemin/crypto_pipeline/blob/main/README.md)
-
 # Crypto Analytics Pipeline
 
 Un pipeline ETL (Extracción, Transformación y Carga) modular construido con Python y DuckDB. Este proyecto ejecuta la recolección de datos históricos de criptomonedas a través de la API de CoinGecko y realiza transformaciones analíticas con SQL para generar análisis de mercado.

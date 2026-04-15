@@ -32,12 +32,10 @@ def fetch_coin_charts(COINS):
                 "to": f"{date}",
                 "precision": 2}
 
-    # Test ping
     print("Starting API connection test...")
     r_ping = requests.get(BASE_URL + PING + KEY_HANDLER)
     print(r_ping.json())
 
-    # Test single coin price
     r_id = requests.get(BASE_URL + COIN_PRICE_BY_ID + KEY_HANDLER, params=payload_test)
     print(r_id.json())
     print("...End of API connection test")
@@ -45,10 +43,8 @@ def fetch_coin_charts(COINS):
     for token in COINS:
         HISTORICAL_CHART_DATA = f"/coins/{token}/market_chart/range"
 
-        # Get prices for one coin
         r_chart = requests.get(BASE_URL + HISTORICAL_CHART_DATA + KEY_HANDLER, params=payload)
 
-        # Transform into a df and basic transformations
         df = pd.DataFrame(r_chart.json())
 
         df["date"] = df["prices"].apply(lambda x: x[0])
@@ -60,6 +56,5 @@ def fetch_coin_charts(COINS):
         df["date"] = df["date"].apply(lambda x: datetime.fromtimestamp(x / 1000))
         print(df.head())
 
-        # Save to parquet file
         df.to_parquet(f'data/{token}_chart.parquet')
         print(f"Token {token} captured correctly.")

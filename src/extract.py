@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
+os.makedirs('data/output', exist_ok=True)
 
 BASE_URL = "https://api.coingecko.com/api/v3"
 
